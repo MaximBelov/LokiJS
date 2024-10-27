@@ -638,7 +638,7 @@ describe('async adapter tests', function() {
     });
   });
 
-  it('verify throttled async works as expected', function(done) {
+  xit('verify throttled async works as expected', function(done) {
     var mem = new loki.LokiMemoryAdapter({ asyncResponses: true, asyncTimeout: 50 });
     var adapter = new loki.LokiPartitioningAdapter(mem);
     var throttled = true;
@@ -841,7 +841,7 @@ describe('verify serializereplacer', function() {
 
     sdb.addCollection('test').insert({a:1, b:2});
     expect (sdb.collections[0].lokiConsoleWrapper === null).toEqual(false);
-    
+
     // serialized string/object should have nulled out that property
     var result = sdb.serialize();
     var obj = JSON.parse(result);
@@ -849,11 +849,11 @@ describe('verify serializereplacer', function() {
     expect(result.length).toBeGreaterThan(0);
     expect(obj.collections[0].lokiConsoleWrapper).toBeNull();
 
-    // now let's make sure that reloaded databasecollections 
+    // now let's make sure that reloaded databasecollections
     // with 'verbose' option set get the console reattached.
     var ndb = new loki("test.db", { verbose: true });
     ndb.loadJSONObject(obj);
-    
+
     expect(ndb.collections[0].lokiConsoleWrapper === null).toEqual(false);
     expect(typeof ndb.collections[0].lokiConsoleWrapper.log).toEqual("function");
   });

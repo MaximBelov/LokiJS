@@ -868,8 +868,10 @@
       // pass autosave: true, autosaveInterval: 6000 in options to set 6 second autosave
       this.autosave = false;
       this.autosaveInterval = 5000;
+      this.ignoreAutosave = false;
       this.autosaveHandle = null;
       this.throttledSaves = true;
+      this.serializeDatabaseBeforeSave = true;
 
       this.options = {};
 
@@ -2674,7 +2676,7 @@
       // or autosave won't work if an update occurs between here and the callback
       // TODO: This should be stored and rolled back in case of DB save failure
       // TODO: Reference mode adapter should have the same behavior
-      if (this.persistenceAdapter.mode !== "reference") {
+      if (this.serializeDatabaseBeforeSave && this.persistenceAdapter.mode !== "reference") {
         this.autosaveClearFlags();
       }
 
@@ -2704,6 +2706,14 @@
       } else if (this.persistenceAdapter.mode === "reference" && typeof this.persistenceAdapter.exportDatabase === "function") {
         // filename may seem redundant but loadDatabase will need to expect this same filename
         this.persistenceAdapter.exportDatabase(this.filename, this.copy({removeNonSerializable:true}), function exportDatabaseCallback(err) {
+          self.autosaveClearFlags();
+          cFun(err);
+        });
+      } else if (this.serializeDatabaseBeforeSave === false){
+        if(localStorage.getItem('debug-lokijs')){
+          console.log("Performing full database save...");
+        }
+        this.persistenceAdapter.saveDatabase(this.filename, this, function saveDatabasecallback(err) {
           self.autosaveClearFlags();
           cFun(err);
         });
@@ -2852,7 +2862,7 @@
         // so next step will be to implement collection level dirty flags set on insert/update/remove
         // along with loki level isdirty() function which iterates all collections to see if any are dirty
 
-        if (self.autosaveDirty()) {
+        if (self.autosaveDirty() && !self.ignoreAutosave) {
           self.saveDatabase(callback);
         }
       }, delay);

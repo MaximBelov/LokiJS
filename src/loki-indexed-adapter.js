@@ -147,6 +147,9 @@
      * @memberof LokiIndexedAdapter
      */
     LokiIndexedAdapter.prototype.saveDatabase = function (dbname, dbstring, callback) {
+      if(localStorage.getItem('debug-lokijs')){
+        console.time(`saveDatabase_${dbname}`);
+      }
       var appName = this.app;
       var adapter = this;
 
@@ -156,6 +159,12 @@
       function saveCallback(result) {
         if (result && result.success === true) {
           callback(null);
+          if (localStorage.getItem('debug-lokijs')) {
+            console.timeEnd(`saveDatabase_${dbname}`);
+            const bytes = dbstring.length * 2;
+            const kb = bytes / 1024;
+            console.log(kb.toFixed(2) + ' KB');
+          }
         } else {
           console.error('saveDatabase->saveCallback, Error saving database', result);
           callback(result);

@@ -203,6 +203,17 @@ declare class Loki extends LokiEventEmitter {
   databaseVersion: number;
   engineVersion: number;
   autosave: boolean;
+  /**
+   * A flag that determines whether the autosave functionality should be ignored.
+   * If set to true, the autosave operation will be bypassed.
+   */
+  ignoreAutosave: boolean;
+  /**
+   * A boolean flag indicating whether the database should be serialized
+   * before saving. When set to true, the database content is converted
+   * to a serialized format to ensure data integrity during storage.
+   */
+  serializeDatabaseBeforeSave: boolean;
   autosaveInterval: number;
   autosaveHandle: number | null;
   persistenceAdapter: LokiPersistenceAdapter | null | undefined;
